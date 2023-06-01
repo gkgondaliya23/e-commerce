@@ -46,3 +46,32 @@ export const createCart = async (request: Request, response: Response) => {
         return ThrowError(response);
     }
 };
+
+/**
+ * @usage : Get carts info
+ * @url : http://localhost:9000/api/carts/me
+ * @param : no-param
+ * @method : GET
+ * @access : private
+ * */
+
+export const getMyCart = async (request: Request, response: Response) => {
+    try {
+        const theUser = await UserUtils.getUser(request, response);
+        if (theUser) {
+            const theCart: any = await CartCollection.find({userObj: new mongoose.Types.ObjectId(theUser._id)}).populate({
+                path: 'products.product',
+                strictPopulate: false
+            }).populate({
+                path: 'userObj',
+                strictPopulate: false
+            });
+            return response.status(200).json({
+                msg: "",
+                data: theCart
+            });
+        }
+    } catch (error) {
+        return ThrowError(response);
+    }
+};
